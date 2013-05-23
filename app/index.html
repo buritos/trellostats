@@ -9,15 +9,31 @@
 <body>
 <header>
 	<h1>trellostats</h1>
+	<div id="member"></div>
 </header>
 <nav id="boards"></nav>
 <div id="chart"></div>
 <footer id="about"></footer>
+
 <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
 <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="http://canjs.com/release/1.1.5/can.jquery.min.js"></script>
 <script>
 	window._ || document.write('<script src="js/libs/underscore-min.js"><\/script>')
 	window.jQuery || document.write('<script src="js/libs/jquery-min.js"><\/script>')
+	window.can || document.write('<script src="js/libs/can.jquery.min.js"><\/script>')
+</script>
+
+<script type="text/ejs" id="memberEJS">
+	<a href="#" class="btn btn-success login">connect</a>
+	<span><%= this.attr('name') %></span>
+	<a href="#" class="btn btn-link logout">logout</a>
+</script>
+
+<script src="https://api.trello.com/1/client.js?key=4fcf1a00dfcf18f9bbf9eeceab2b680a"></script>
+<script src="js/application.js"></script>
+<script>
+	var memberControl = new control.Member('#member');
 </script>
 </body>
 </html>
