@@ -27,13 +27,22 @@
 <script type="text/ejs" id="memberEJS">
 	<a href="#" class="btn btn-success login">connect</a>
 	<span><%= this.attr('name') %></span>
-	<a href="#" class="btn btn-link logout">logout</a>
+	<a href="#" class="btn btn-mini btn-link logout">logout</a>
+</script>
+
+<script type="text/ejs" id="boardsEJS">
+	<ul class="nav nav-tabs nav-stacked">
+		<% this.attr('boards').each(function (value, name) { %>
+			<li><a href="#"><%= value.attr('name') %></a></li>
+		<% }) %>
+	</ul>
 </script>
 
 <script src="https://api.trello.com/1/client.js?key=4fcf1a00dfcf18f9bbf9eeceab2b680a"></script>
 <script src="js/application.js"></script>
 <script>
 	var memberControl = new control.Member('#member');
+	var boardsControl = new control.Boards('#boards');
 </script>
 </body>
 </html>
