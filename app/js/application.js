@@ -29,11 +29,20 @@ model.Board = can.Model({
 	init: function(){
 		this.attr('name', '');
 		this.attr('lists', new can.Observe());
+		this.attr('cardCount', 0);
 	},
 	initFromTrelloBoard : function(TrelloBoard) {
 		this.attr('id', TrelloBoard.id);
 		this.attr('name', TrelloBoard.name);
-	}
+	},
+	createList : function(ListCreated) { /* TODO */ },
+	createCard : function(CardCreated) { /* TODO */ },
+	deleteCard : function(CardDeleted) { /* TODO */ },
+	updateCard : function(CardUpdated) { /* TODO */ },
+	moveCardFromBoard : function(CardMovedFromBoard) { /* TODO */ },
+	moveListFromBoard : function(ListMovedFromBoard) { /* TODO */ },
+	moveCardToBoard : function(CardMovedToBoard) { /* TODO */ },
+	moveListToBoard : function(ListMovedToBoard) { /* TODO */ }
 });
 
 model.List = can.Model({
