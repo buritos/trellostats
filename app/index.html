@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>trellostats</title>
-<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
 <link href="css/application.css" rel="stylesheet">
 </head>
 <body>
@@ -15,9 +15,10 @@
 <div id="chart"></div>
 <footer id="about"></footer>
 
-<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
-<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script src="http://canjs.com/release/1.1.5/can.jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+<script src="//canjs.com/release/1.1.5/can.jquery.min.js"></script>
 <script>
 	window._ || document.write('<script src="js/libs/underscore-min.js"><\/script>')
 	window.jQuery || document.write('<script src="js/libs/jquery-min.js"><\/script>')
@@ -27,13 +28,17 @@
 <script type="text/ejs" id="memberEJS">
 	<a href="#" class="btn btn-success login">connect</a>
 	<span><%= this.attr('name') %></span>
-	<a href="#" class="btn btn-mini btn-link logout">logout</a>
+	<a href="#" class="btn btn-mini btn-warning logout">logout</a>
 </script>
 
 <script type="text/ejs" id="boardsEJS">
 	<ul class="nav nav-tabs nav-stacked">
-		<% this.attr('boards').each(function (value, name) { %>
-			<li><a href="#"><%= value.attr('name') %></a></li>
+		<% this.attr('boards').each(function (board, name) { %>
+			<li>
+				<a <%= (el) -> el.data('board', board) %> href="#">
+					<%= board.attr('name') %>
+				</a>
+			</li>
 		<% }) %>
 	</ul>
 </script>

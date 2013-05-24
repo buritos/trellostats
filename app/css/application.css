@@ -9,3 +9,7 @@ header {
 #boards {
 	width: 20%;
 }
+
+#boards .selected {
+	background-color: #fbfbfb;
+}

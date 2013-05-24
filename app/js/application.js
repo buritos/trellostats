@@ -8,33 +8,45 @@ model.Member = can.Model({
 	login: function(UserLogin) {
 		this.attr('id', UserLogin.id);
 		this.attr('name', UserLogin.fullName);
-		
-		var boardsIdMap = this.attr('boards');
 		for (var i = 0 ; i < UserLogin.boards.length ; i++) {
 			var board = new model.Board();
-			board.initialize(UserLogin.boards[i]);
-			boardsIdMap.attr(board.attr('id'), board);
+			board.initFromTrelloBoard(UserLogin.boards[i]);
+			this.attr('boards')
+				.attr(board.attr('id'), board);
 		}
 	},
 	logout: function() {
 		this.removeAttr('id');
 		this.attr('name', '');
 		var boards = this.attr('boards'); 
-		boards.each(function (value, name) {
-			boards.removeAttr(name);
+		boards.each(function (board, id) {
+			boards.removeAttr(id);
 		});
 	}
 });
 
 model.Board = can.Model({
-	initialize : function(Board) {
-		this.attr('id', Board.id);
-		this.attr('name', Board.name);
+	init: function(){
+		this.attr('name', '');
+		this.attr('lists', new can.Observe());
+	},
+	initFromTrelloBoard : function(TrelloBoard) {
+		this.attr('id', TrelloBoard.id);
+		this.attr('name', TrelloBoard.name);
+	}
+});
+
+model.List = can.Model({
+	init: function() {
+		this.attr('cardCount', 0);
+	},
+	initFromTrelloList: function(TrelloList) {
+		this.attr('id', TrelloList.id);
+		this.attr('name', TrelloList.name);
 	}
 });
 
 var session = session || {};
-
 session.user = new model.Member();
 
 var control = control || {};
@@ -54,8 +66,8 @@ control.Member = can.Control({
 		this.updateLoggedIn();
 	},
 	onAuth: function() {
-		Trello.members.get('me', {boards: 'all'}, function(member) {
-			session.user.login(member);
+		Trello.members.get('me', {boards: 'all'}, function(UserLogin) {
+			session.user.login(UserLogin);
 		});
 	},
 	updateLoggedIn: function() {
@@ -89,8 +101,30 @@ control.Boards = can.Control({
 },{
 	'init': function(element, options) {
 		this.element.html(can.view(this.options.view, session.user));
+	},
+	'li a click': function(el, ev) {
+		this.element.find('.selected').removeClass('selected');
+		el.closest('li').addClass('selected');
+		el.trigger('selected', el.data('board'));
+	},
+	'li a selected': function(el, ev, board) {
+		Trello.get("boards/" + board.id + "/lists", function(TrelloLists) {
+			for (var i = 0 ; i < TrelloLists.length ; i++) {
+				var TrelloList = TrelloLists[i];
+				var list = board.lists[TrelloList.id];
+				if (_.isUndefined(list)) {
+					list = new model.List();
+					list.initFromTrelloList(TrelloList);
+					board.lists.attr(list.id, list);
+				}
+				else {
+					list.attr('name', TrelloList.name);
+				}
+			}
+		});
 	}
 });
+
 
 
 
