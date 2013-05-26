@@ -1,9 +1,25 @@
 var model = model || {};
 
+model.IdMap = can.Model({
+	count: function(counter) {
+		return _.reduce(this.attr(), counter, 0);
+	},
+	removeAll: function() {
+		var self = this;
+		this.each(function(v, k) {
+			self.removeAttr(k);
+		});
+	}
+});
+
+model.IdCounter = function(memo,o) { return memo + 1; };
+model.BooleanCounter = function(b,memo,o) { return memo + ( (b===o)?1:0 ); };
+model.TrueCounter = _.partial(model.BooleanCounter, true);
+
 model.Member = can.Model({
 	init: function() {
 		this.attr('name', '');
-		this.attr('boards', new can.Observe());
+		this.attr('boards', new model.IdMap());
 	},
 	login: function(UserLogin) {
 		this.attr('id', UserLogin.id);
@@ -18,42 +34,118 @@ model.Member = can.Model({
 	logout: function() {
 		this.removeAttr('id');
 		this.attr('name', '');
-		var boards = this.attr('boards'); 
-		boards.each(function (board, id) {
-			boards.removeAttr(id);
-		});
+		this.attr('boards').removeAll(); 
 	}
 });
 
 model.Board = can.Model({
 	init: function(){
 		this.attr('name', '');
-		this.attr('lists', new can.Observe());
-		this.attr('cardCount', 0);
+		this.attr('lists', new model.IdMap);
+		this.attr('timestamp', new Date(0));
 	},
-	initFromTrelloBoard : function(TrelloBoard) {
+	initFromTrelloBoard: function(TrelloBoard) {
 		this.attr('id', TrelloBoard.id);
 		this.attr('name', TrelloBoard.name);
 	},
-	createList : function(ListCreated) { /* TODO */ },
-	createCard : function(CardCreated) { /* TODO */ },
-	deleteCard : function(CardDeleted) { /* TODO */ },
-	updateCard : function(CardUpdated) { /* TODO */ },
-	moveCardFromBoard : function(CardMovedFromBoard) { /* TODO */ },
-	moveListFromBoard : function(ListMovedFromBoard) { /* TODO */ },
-	moveCardToBoard : function(CardMovedToBoard) { /* TODO */ },
-	moveListToBoard : function(ListMovedToBoard) { /* TODO */ }
+	initTrelloLists: function(TrelloLists) {
+		for (var i = 0 ; i < TrelloLists.length ; i++) {
+			var TrelloList = TrelloLists[i];
+			var list = this.lists[TrelloList.id];
+			if (_.isUndefined(list)) {
+				list = new model.List();
+				list.initFromTrelloList(TrelloList);
+				this.lists.attr(list.id, list);
+			}
+			else {
+				list.attr('name', TrelloList.name);
+			}
+		}
+	},
+	
+	invokeTrelloActions: function(TrelloActions) {
+		for (var i = 0 ; i < TrelloActions.length ; i++){
+			this.invokeTrelloAction(TrelloActions[i]);
+		}
+	},
+	invokeTrelloAction: function(TrelloAction) {
+		var t = new Date(TrelloAction.date);
+		if (this.timestamp < t) {
+			if ( ! _.isUndefined(this[TrelloAction.type])) {
+				this[TrelloAction.type](TrelloAction);
+				this.attr('timestamp', t);
+			}
+		}
+		else {
+			throw "action replay on board <" + this.id + ">";
+		}
+	},
+	
+	createCard: function(CardCreated) { 
+		this.lists[CardCreated.data.list.id].addCard(CardCreated);
+	},
+	deleteCard: function(CardDeleted) { 
+		this.lists[CardDeleted.data.list.id].removeCard(CardDeleted);
+	},
+	updateCard: function(CardUpdated) {
+		var cardId = CardUpdated.data.card.id;
+		var isArchived = CardUpdated.data.old.closed;
+		if ( ! _.isUndefined(isArchived)) {
+			this.lists.each(function(list){
+				if ( ! _.isUndefined(list.cards[cardId])) {
+					list.archiveCard(CardUpdated);
+				}
+			});
+		}
+		if ( ! _.isUndefined(CardUpdated.data.listBefore)) {
+			this.lists[CardUpdated.data.listBefore.id].removeCard(CardUpdated);
+			this.lists[CardUpdated.data.listAfter.id].addCard(CardUpdated);
+		}
+	},
+	moveCardFromBoard: function(CardMovedFromBoard) { /* TODO */ },
+	moveCardToBoard: function(CardMovedToBoard) { /* TODO */ },
+	moveListFromBoard: function(ListMovedFromBoard) { /* TODO */ },
+	moveListToBoard: function(ListMovedToBoard) { /* TODO */ },
+	
+	listsCount: function() {
+		return this.lists.count(model.IdCounter);
+	},
+	cardsCount: function() {
+		function counter(n,o) {
+			var cards = new model.IdMap(o.cards);
+			return n + cards.count(model.TrueCounter); 
+		} 
+		return this.lists.count(counter);
+	}
 });
 
 model.List = can.Model({
 	init: function() {
-		this.attr('cardCount', 0);
+		this.attr('cards', new model.IdMap());
+	},
+	cardsCount: function() {
+		return this.cards.count(model.TrueCounter);
 	},
 	initFromTrelloList: function(TrelloList) {
 		this.attr('id', TrelloList.id);
-		this.attr('name', TrelloList.name);
-	}
+		this.attr('name', TrelloList.name); 
+	},
+	addCard: function(CardCreated) { this.cards.attr(CardCreated.data.card.id, true); },
+	removeCard: function(CardDeleted) { this.cards.removeAttr(CardDeleted.data.card.id); },
+	archiveCard: function(CardArchived) { this.cards.attr(CardArchived.data.card.id, CardArchived.data.old.closed); }
 });
+
+var TrelloService = TrelloService || {};
+(function(){
+	this.onUserLogin = function(User) {
+		function login(UserLogin) { User.login(UserLogin); }
+		Trello.members.get('me', {boards: 'all'}, login);
+	};
+	this.loadListsForBoard = function(Board) {
+		function initBoardLists(TrelloLists) { Board.initTrelloLists(TrelloLists); }
+		Trello.get("boards/" + Board.id + "/lists", initBoardLists);
+	};
+}).apply(TrelloService);
 
 var session = session || {};
 session.user = new model.Member();
@@ -75,9 +167,7 @@ control.Member = can.Control({
 		this.updateLoggedIn();
 	},
 	onAuth: function() {
-		Trello.members.get('me', {boards: 'all'}, function(UserLogin) {
-			session.user.login(UserLogin);
-		});
+		TrelloService.onUserLogin(session.user);
 	},
 	updateLoggedIn: function() {
 		$(".logout").toggle(Trello.authorized());
@@ -117,20 +207,7 @@ control.Boards = can.Control({
 		el.trigger('selected', el.data('board'));
 	},
 	'li a selected': function(el, ev, board) {
-		Trello.get("boards/" + board.id + "/lists", function(TrelloLists) {
-			for (var i = 0 ; i < TrelloLists.length ; i++) {
-				var TrelloList = TrelloLists[i];
-				var list = board.lists[TrelloList.id];
-				if (_.isUndefined(list)) {
-					list = new model.List();
-					list.initFromTrelloList(TrelloList);
-					board.lists.attr(list.id, list);
-				}
-				else {
-					list.attr('name', TrelloList.name);
-				}
-			}
-		});
+		TrelloService.loadListsForBoard(board);
 	}
 });
 
