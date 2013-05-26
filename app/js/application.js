@@ -62,6 +62,15 @@ model.Board = can.Model({
 			}
 		}
 	},
+	copy: function() {
+		var board = new model.Board();
+		board.initFromTrelloBoard(this);
+		board.initTrelloLists(_.toArray(this.lists.attr()));
+		var lists = this.lists;
+		function copyCards(list, k) { list.attr('cards', $.extend(true, new model.IdMap(), lists[k].cards)); }
+		board.lists.each(copyCards);
+		return board;
+	},
 	
 	invokeTrelloActions: function(TrelloActions) {
 		for (var i = 0 ; i < TrelloActions.length ; i++){
@@ -133,6 +142,27 @@ model.List = can.Model({
 	addCard: function(CardCreated) { this.cards.attr(CardCreated.data.card.id, true); },
 	removeCard: function(CardDeleted) { this.cards.removeAttr(CardDeleted.data.card.id); },
 	archiveCard: function(CardArchived) { this.cards.attr(CardArchived.data.card.id, CardArchived.data.old.closed); }
+});
+
+model.Timeline = can.Model({
+	init: function(Board) {
+		this.attr('board', Board);
+		this.attr('states', new model.IdMap());
+	},
+	append: function(TrelloActions) {
+		var reverse = _.reduceRight(TrelloActions, function(a,b) { a.push(b); return a; }, []);
+		var byDate = _.groupBy(reverse, function(a) { return new Date(a.date).toDateString(); });
+		var sorted = _.sortBy(byDate, function(v,k) { return new Date(k).getTime(); });
+		for (var i = 0 ; i < sorted.length ; i++) {
+			var actions = sorted[i];
+			var k = new Date(_.first(actions).date).toDateString();
+			if ( ! _.has(this.states, k)) {
+				this.states.attr(k, this.board.copy());
+			}
+			this.board.invokeTrelloActions(actions);
+			this.states[k].invokeTrelloActions(actions);
+		}
+	}
 });
 
 var TrelloService = TrelloService || {};
