@@ -34,11 +34,9 @@
 <script type="text/ejs" id="boardsEJS">
 	<ul class="nav nav-tabs nav-stacked">
 		<% this.attr('boards').each(function (board, name) { %>
-			<li>
-				<a <%= (el) -> el.data('board', board) %> href="#">
-					<%= board.attr('name') %>
-				</a>
-			</li>
+			<li><a <%= (el) -> el.data('board', board) %> href="#">
+				<%= board.attr('name') %>
+			</a></li>
 		<% }) %>
 	</ul>
 </script>

@@ -1,15 +1,4 @@
-body {
-	padding: 20px 20px 0 20px;
-}
-
-header {
-	padding-bottom: 12px;
-}
-
-#boards {
-	width: 20%;
-}
-
-#boards .selected {
-	background-color: #fbfbfb;
-}
+body { padding: 20px 20px 0 20px; }
+header { padding-bottom: 12px; }
+#boards { width: 20%; }
+#boards .selected { background-color: #fbfbfb; }
