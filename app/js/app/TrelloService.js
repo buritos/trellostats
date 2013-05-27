@@ -1,4 +1,5 @@
-var TrelloService = TrelloService || {};
+namespace('tstats');
+tstats.TrelloService = {};
 (function(){
 	this.onUserLogin = function(User) {
 		function login(UserLogin) { User.login(UserLogin); }
@@ -19,4 +20,4 @@ var TrelloService = TrelloService || {};
 			actions_since: Board.timestamp.toISOString()
 		}, invokeBoardActions);
 	};
-}).apply(TrelloService);
+}).apply(tstats.TrelloService);

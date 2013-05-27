@@ -1,8 +1,8 @@
-var model = model || {};
-model.Board = can.Model({
+namespace('tstats.m');
+tstats.m.Board = can.Model({
 	init: function(){
 		this.attr('name', '');
-		this.attr('lists', new model.Map);
+		this.attr('lists', new tstats.m.Map);
 		this.attr('timestamp', new Date(0));
 	},
 	initFromTrelloBoard: function(TrelloBoard) {
@@ -14,7 +14,7 @@ model.Board = can.Model({
 			var TrelloList = TrelloLists[i];
 			var list = this.lists[TrelloList.id];
 			if (_.isUndefined(list)) {
-				list = new model.List();
+				list = new tstats.m.List();
 				list.initFromTrelloList(TrelloList);
 				this.lists.attr(list.id, list);
 			}
@@ -24,11 +24,11 @@ model.Board = can.Model({
 		}
 	},
 	copy: function() {
-		var board = new model.Board();
+		var board = new tstats.m.Board();
 		board.initFromTrelloBoard(this);
 		board.initTrelloLists(_.toArray(this.lists.attr()));
 		var lists = this.lists;
-		function copyCards(list, k) { list.attr('cards', $.extend(true, new model.Map(), lists[k].cards)); }
+		function copyCards(list, k) { list.attr('cards', $.extend(true, new tstats.m.Map(), lists[k].cards)); }
 		board.lists.each(copyCards);
 		return board;
 	},
@@ -78,12 +78,12 @@ model.Board = can.Model({
 	moveListToBoard: function(ListMovedToBoard) { /* TODO */ },
 	
 	listsCount: function() {
-		return this.lists.count(model.IdCounter);
+		return this.lists.count(tstats.m.IdCounter);
 	},
 	cardsCount: function() {
 		function counter(n,o) {
-			var cards = new model.Map(o.cards);
-			return n + cards.count(model.TrueCounter); 
+			var cards = new tstats.m.Map(o.cards);
+			return n + cards.count(tstats.m.TrueCounter); 
 		} 
 		return this.lists.count(counter);
 	}

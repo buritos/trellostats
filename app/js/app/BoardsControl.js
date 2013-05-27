@@ -1,9 +1,9 @@
-var control = control || {};
-control.Boards = can.Control({
+namespace('tstats.c');
+tstats.c.Boards = can.Control({
 	defaults: { view: 'boardsEJS' }
 },{
 	'init': function(element, options) {
-		this.element.html(can.view(this.options.view, session.user));
+		this.element.html(can.view(this.options.view, tstats.user));
 	},
 	'li a click': function(el, ev) {
 		this.element.find('.selected').removeClass('selected');
@@ -11,6 +11,6 @@ control.Boards = can.Control({
 		el.trigger('selected', el.data('board'));
 	},
 	'li a selected': function(el, ev, board) {
-		TrelloService.loadListsForBoard(board);
+		tstats.TrelloService.loadListsForBoard(board);
 	}
 });

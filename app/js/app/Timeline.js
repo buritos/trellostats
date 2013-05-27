@@ -1,8 +1,8 @@
-var model = model || {};
-model.Timeline = can.Model({
+namespace('tstats.m');
+tstats.m.Timeline = can.Model({
 	init: function(Board) {
 		this.attr('board', Board);
-		this.attr('states', new model.Map());
+		this.attr('states', new tstats.m.Map());
 	},
 	append: function(TrelloActions) {
 		var reverse = _.reduceRight(TrelloActions, function(a,b) { a.push(b); return a; }, []);

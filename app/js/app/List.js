@@ -1,10 +1,10 @@
-var model = model || {};
-model.List = can.Model({
+namespace('tstats.m');
+tstats.m.List = can.Model({
 	init: function() {
-		this.attr('cards', new model.Map());
+		this.attr('cards', new tstats.m.Map());
 	},
 	cardsCount: function() {
-		return this.cards.count(model.TrueCounter);
+		return this.cards.count(tstats.m.TrueCounter);
 	},
 	initFromTrelloList: function(TrelloList) {
 		this.attr('id', TrelloList.id);

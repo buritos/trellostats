@@ -1,5 +1,5 @@
-var model = model || {};
-model.Map = can.Model({
+namespace('tstats.m');
+tstats.m.Map = can.Model({
 	count: function(counter) {
 		return _.reduce(this.attr(), counter, 0);
 	},
@@ -11,6 +11,6 @@ model.Map = can.Model({
 	}
 });
 
-model.IdCounter = function(memo,o) { return memo + 1; };
-model.BooleanCounter = function(b,memo,o) { return memo + ( (b===o)?1:0 ); };
-model.TrueCounter = _.partial(model.BooleanCounter, true);
+tstats.m.IdCounter = function(memo,o) { return memo + 1; };
+tstats.m.BooleanCounter = function(b,memo,o) { return memo + ( (b===o)?1:0 ); };
+tstats.m.TrueCounter = _.partial(tstats.m.BooleanCounter, true);

@@ -1,9 +1,9 @@
-var control = control || {};
-control.Member = can.Control({
+namespace('tstats.c');
+tstats.c.Member = can.Control({
 	defaults: { view: 'memberEJS' }
 },{
 	'init': function(element, options) {
-		this.element.html(can.view(this.options.view, session.user));
+		this.element.html(can.view(this.options.view, tstats.user));
 		var self = this;
 		Trello.authorize({ interactive: false,
 		    success: function () {
@@ -14,7 +14,7 @@ control.Member = can.Control({
 		this.updateLoggedIn();
 	},
 	onAuth: function() {
-		TrelloService.onUserLogin(session.user);
+		tstats.TrelloService.onUserLogin(tstats.user);
 	},
 	updateLoggedIn: function() {
 		$(".logout").toggle(Trello.authorized());
@@ -37,7 +37,7 @@ control.Member = can.Control({
 	'.logout click': function(el, ev) {
 		ev.preventDefault();
 		Trello.deauthorize();
-		session.user.logout();
+		tstats.user.logout();
 	    this.updateLoggedIn();
 	}
 });
