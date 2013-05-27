@@ -41,7 +41,7 @@ tstats.m.Board = can.Model({
 	invokeTrelloAction: function(TrelloAction) {
 		var t = new Date(TrelloAction.date);
 		if (this.timestamp < t) {
-			if ( ! _.isUndefined(this[TrelloAction.type])) {
+			if (_.has(this[TrelloAction.type])) {
 				this[TrelloAction.type](TrelloAction);
 				this.attr('timestamp', t);
 			}
