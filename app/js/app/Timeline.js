@@ -1,7 +1,6 @@
 namespace('tstats.m');
 tstats.m.Timeline = can.Model({
-	init: function(Board) {
-		this.attr('board', Board);
+	init: function() {
 		this.attr('states', new tstats.m.Map());
 	},
 	append: function(TrelloActions) {
