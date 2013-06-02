@@ -39,5 +39,6 @@ tstats.c.Member = can.Control({
 		Trello.deauthorize();
 		tstats.user.logout();
 	    this.updateLoggedIn();
+	    el.trigger('logout');
 	}
 });

@@ -1,9 +1,9 @@
 namespace('tstats.m');
 tstats.m.Board = can.Model({
-	init: function(){
-		this.attr('name', '');
-		this.attr('lists', new tstats.m.Map);
-		this.attr('timestamp', new Date(0));
+	init: function(options){
+		this.attr('name', options.name || '');
+		this.attr('lists', new tstats.m.Map());
+		this.attr('timestamp', options.timestamp || new Date(0));
 	},
 	initFromTrelloBoard: function(TrelloBoard) {
 		this.attr('id', TrelloBoard.id);
@@ -24,8 +24,7 @@ tstats.m.Board = can.Model({
 		}
 	},
 	copy: function() {
-		var board = new tstats.m.Board();
-		board.initFromTrelloBoard(this);
+		var board = new tstats.m.Board(this.attr());
 		board.initTrelloLists(_.toArray(this.lists.attr()));
 		var lists = this.lists;
 		function copyCards(list, k) { list.attr('cards', $.extend(true, new tstats.m.Map(), lists[k].cards)); }
@@ -41,7 +40,7 @@ tstats.m.Board = can.Model({
 	invokeTrelloAction: function(TrelloAction) {
 		var t = new Date(TrelloAction.date);
 		if (this.timestamp < t) {
-			if (_.has(this[TrelloAction.type])) {
+			if ( ! _.isUndefined(this[TrelloAction.type])) {
 				this[TrelloAction.type](TrelloAction);
 				this.attr('timestamp', t);
 			}
@@ -51,11 +50,22 @@ tstats.m.Board = can.Model({
 		}
 	},
 	
-	createCard: function(CardCreated) { 
-		this.lists[CardCreated.data.list.id].addCard(CardCreated);
+	createList: function(ListCreated) {
+		if (_.isUndefined(this.lists[ListCreated.data.list.id])) {
+			var list = new tstats.m.List();
+			list.initFromTrelloList(ListCreated.data.list);
+			this.lists.attr(list.id, list);
+		}
+	},
+	createCard: function(CardCreated) {
+		if (_.has(this.lists, CardCreated.data.list.id)) {
+			this.lists[CardCreated.data.list.id].addCard(CardCreated);
+		}
 	},
 	deleteCard: function(CardDeleted) { 
-		this.lists[CardDeleted.data.list.id].removeCard(CardDeleted);
+		if (_.has(this.lists, CardDeleted.data.list.id)) {
+			this.lists[CardDeleted.data.list.id].removeCard(CardDeleted);
+		}
 	},
 	updateCard: function(CardUpdated) {
 		var cardId = CardUpdated.data.card.id;
@@ -68,8 +78,12 @@ tstats.m.Board = can.Model({
 			});
 		}
 		if ( ! _.isUndefined(CardUpdated.data.listBefore)) {
-			this.lists[CardUpdated.data.listBefore.id].removeCard(CardUpdated);
-			this.lists[CardUpdated.data.listAfter.id].addCard(CardUpdated);
+			var listBeforeId = CardUpdated.data.listBefore.id,
+				listAfterId = CardUpdated.data.listAfter.id;
+			if (_.has(this.lists, listBeforeId))
+				this.lists[listBeforeId].removeCard(CardUpdated);
+			if (_.has(this.lists, listAfterId))
+				this.lists[listAfterId].addCard(CardUpdated);
 		}
 	},
 	moveCardFromBoard: function(CardMovedFromBoard) { /* TODO */ },

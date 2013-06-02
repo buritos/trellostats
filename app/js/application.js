@@ -13,11 +13,10 @@ function namespace(namespaceString) {
 };
 
 requirejs.config({ baseUrl: 'js/app' });
-requirejs(['Map', 'Member', 'Board', 'List', 'Timeline', 'TrelloService', 'MemberControl', 'BoardsControl'], 
+requirejs(['Map', 'Member', 'Board', 'List', 'Timeline', 'TrelloService', 'MemberControl', 'BoardsControl', 'Router', 'TimelineControl'], 
 	function() {
 		tstats.user = new tstats.m.Member();
-		new tstats.c.Member('#member');
-		new tstats.c.Boards('#boards');
+		new tstats.c.Router(document.body);
 	}
 );
 

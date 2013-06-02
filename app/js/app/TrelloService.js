@@ -7,7 +7,7 @@ tstats.TrelloService = {};
 	};
 	this.loadListsForBoard = function(Board) {
 		function initBoardLists(TrelloLists) { Board.initTrelloLists(TrelloLists); }
-		Trello.get("boards/" + Board.id + "/lists", initBoardLists);
+		Trello.get("boards/" + Board.id + "/lists", {filter: 'all'}, initBoardLists);
 	};
 	this.loadActionsForBoard = function(Board) {
 		function invokeBoardActions(TrelloBoard) {
