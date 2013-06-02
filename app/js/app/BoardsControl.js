@@ -13,6 +13,5 @@ tstats.c.Boards = can.Control({
 	},
 	'li a selected': function(el, ev, board) {
 		tstats.TrelloService.loadListsForBoard(board);
-		can.route.attr('id', board.id);
 	}
 });

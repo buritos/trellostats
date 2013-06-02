@@ -5,9 +5,6 @@ tstats.c.Router = can.Control({
 		this.boards = new tstats.c.Boards('#boards');
 		this.chart = new tstats.c.Timeline('#chart');
 	},
-	'boards/:id route' : function(data) {
-		
-	},
 	'li a selected': function(el, ev, data) {
 		this.chart.clearView();
 		this.chart.timeline(data);
