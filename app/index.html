@@ -4,16 +4,29 @@
 <meta charset="UTF-8">
 <title>trellostats</title>
 <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.min.css" rel="stylesheet">
 <link href="css/application.css" rel="stylesheet">
 </head>
 <body>
-<header>
-	<h1>trellostats</h1>
-	<div id="member"></div>
-</header>
-<nav id="boards"></nav>
-<div id="chart"></div>
-<footer id="about"></footer>
+<div class="container-fluid">
+	<header class="row-fluid">
+		<div class="span3">
+			<h1>trellostats</h1>
+			<div id="member"></div>
+		</div>
+		<div id="loadingG" class="clearfix span1 offset8" style="display: none;">
+			<div id="blockG_1" class="loading_blockG"></div>
+			<div id="blockG_2" class="loading_blockG"></div>
+			<div id="blockG_3" class="loading_blockG"></div>
+		</div>
+	</header>
+	<div class="row-fluid">
+		<nav id="boards" class="span3"></nav>
+		<div id="chart" class="span9"></div>
+	</div>
+	<footer id="about"></footer>
+</div>
+
 
 <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
