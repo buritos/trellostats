@@ -2,7 +2,7 @@ trellostats
 ===========
 make sense of your trello boards.
 
-trellostats is a lightweight app that helps you keep track of the state of your Trello boards over time. It's main purpose is to demonstrate the power of the Trello API and how it can be used to make tools that quantify whatever process you choose to implement with Trello.
+Trellostats helps you keep track of the state of your Trello boards over time. It's main purpose is to explore the power of the Trello API and how it can be used to make tools that quantify whatever process you choose to implement with Trello.
 
 features
 ===========
